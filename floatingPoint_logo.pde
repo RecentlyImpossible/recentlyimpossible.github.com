@@ -33,7 +33,6 @@ boolean oTunnel = false;
 void setup(){
 size(900,300);
  floatingPoint = loadImage("fp_logo_blank.jpg");
-  
   scaler = width/ floatingPoint.width;
   yScale = floatingPoint.height*scaler;
 }
@@ -59,7 +58,7 @@ grabbed=false;
 }
 
 if(oTunnel){
- oTunnel();
+ //oTunnel();
 }
 
 }
@@ -129,10 +128,10 @@ pointY = mouseY;
 void mouseReleased(){
   
 if(abs(pointX-o2X)<oW/2 && abs(pointY-o2Y)<oH/2){
- oTunnel = true;
- pointDT = 0;
-pointXT= o2X;
-pointYT= o2Y;
+// oTunnel = true;
+ //pointDT = 0;
+//pointXT= o2X;
+//pointYT= o2Y;
 
 }
 }
