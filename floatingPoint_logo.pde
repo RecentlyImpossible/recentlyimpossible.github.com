@@ -13,6 +13,10 @@ float pointDI = 20;
 float pointD =  pointDI;
 float pointDT = pointD;
 
+int releaseX;
+
+PVector fPoint;
+
 float floatH = 30;
 float scaler;
 float yScale;
@@ -29,12 +33,19 @@ boolean floating = true;
 boolean spring =false;
 boolean grabbed = false;
 boolean oTunnel = false;
+boolean pTunnel = false;
+boolean shaking = false;
+
+int shakeCount = 0;
+int shakeDir = 1;
 
 void setup() {
   size(900, 300);
   floatingPoint = loadImage("fp_logo_blank.jpg");
   scaler = width/ floatingPoint.width;
   yScale = floatingPoint.height*scaler;
+  
+  //fPoint = new PVector(pointXI, pointYI);
 }
 
 void draw() {
@@ -56,7 +67,13 @@ void draw() {
   }
 
   if (oTunnel) {
-    Tunnel();
+    if(abs(releaseX-o2X)<abs(releaseX-o1X)){
+   Tunnel(o2X, o2Y, o1X, o1Y);
+    }
+    else 
+     Tunnel(o1X, o1Y, o2X, o2Y);
+    
+    // Tunnel();
     //drawEllipse();
     //ellipse(100,100,100,100);
   }
@@ -66,13 +83,14 @@ void draw() {
    if (grabbed) {
     pointX = mouseX;
     pointY = mouseY;
-
   }
-  
 }
 
 void floatIt() {
   spring =false;
+   shake();
+  
+  if(shakeCount == 0){ 
   pointY+=speed;
   if (pointY>pointYT || pointY< pointYT-floatH) {
     speed*=-1;
@@ -80,9 +98,17 @@ void floatIt() {
   if (pointY==pointYT &&  pointX== pointXT) {
     speed=-.35;
   }
+  }
 }
 
 void springback() {
+  if(shakeCount>0){
+   if (pointX!=pointXT) {
+    pointX-=ease*(pointX-pointXT)/2;
+  }
+    
+  }
+  
   floating = false;
   if (pointY!=pointYT) {
     pointY-=ease*(pointY-pointYT)/8;
@@ -99,7 +125,7 @@ void springback() {
     pointY=pointYT;
   }
 
-  if (pointY==pointYT && pointX == pointXT) {
+  if (pointY==pointYT && pointX == pointXT && oTunnel == false) {
     spring =false;
     floating = true;
   }
@@ -156,16 +182,26 @@ if(!mousePressed){
 
 
 void mouseReleased() {
+  
  if(grabbed){
  grabbed = false;
  spring = true;
  }
  
+ if (abs(pointX-o1X)<oW/2 && abs(pointY-o1Y)<oH/2) {
+   releaseX = mouseX;
+  oTunnel = true;
+  spring = false;
+   
+ }
+ 
   if (abs(pointX-o2X)<oW/2 && abs(pointY-o2Y)<oH/2) {
+     releaseX = mouseX;
     oTunnel = true;
-    pointDT = 0;
-    pointXT= o2X;
-    pointYT= o2Y;
+    spring = false;
+   // pointDT = 0;
+    //pointXT= o2X;
+    //pointYT= o2Y;
   }
 }
 
@@ -174,6 +210,7 @@ void drawEllipse() {
 }
 
 void Tunnel() {
+  
   floating = false;
   spring =true;
   if (pointDT==0 && abs(pointD-pointDT)<1) {
@@ -196,6 +233,49 @@ void Tunnel() {
   }
   //println("otunnel 2");
 }
+
+void Tunnel(int _x1, int _y1, int _x2, int _y2) {
+    if(!pTunnel){
+  //set D targ to 0 & position Targs to middle of 1st O
+    pointDT = 0;
+    pointXT= _x1;
+    pointYT= _y1;
+   
+    floating = false;
+    spring =true;
+  pTunnel = true;  
+  }
+    
+  //if it's shrunk and & centered in O set the target to the 2nd 0
+  if (pointDT==0 && abs(pointD-pointDT)<1) {
+    pointXT= _x2;
+    pointYT= _y2;
+    //pointDT = pointDI;
+  }
+
+//if we reach the 2nd O  make it big again
+  if (abs(pointX-_x2)<1) {
+    pointDT = pointDI;
+  }
+  
+  //if it's big again, move it back to the origin
+  if (pointXT== _x2 && pointDT == pointDI && abs(pointD-pointDT)<2) {
+    pointXT= pointXI; 
+    pointYT= pointYI;
+  }
+
+//if we get back to origin, end the tunnel function and float again
+  if (pointXT == pointXI && abs(pointXT-pointX)<1) {
+    oTunnel = false;
+     pTunnel = false;
+     shakeCount = 10;
+    floating = true;
+  }
+  //println("otunnel 2");
+}
+
+
+
 
 void checkEdges() {
 
@@ -227,11 +307,26 @@ void checkEdges() {
  
   }
   if (mousePressed == true  && grabbed==false) {
-
     if (spring==true) {
       springback();
     }
   }
 }
 
+
+void shake(){
+  
+if(abs(pointXT-pointX)<1 && shakeCount>0){
+spring = true;
+pointXT = pointXI+shakeCount*shakeDir;
+shakeDir*=-1;
+shakeCount--;
+}
+if(shakeCount==0){
+pointXT=pointXI;
+if(pointX==pointXT){
+spring = false;
+}
+}
+}
 
