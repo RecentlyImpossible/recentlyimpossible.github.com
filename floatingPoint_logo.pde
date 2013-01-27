@@ -653,7 +653,7 @@ xO = random(-pointD/4, pointD/4);
 yO = random(-pointD/4, pointD/4);
 
 col = color(random(130,240),random(100,160),random(50,100));
-println(col);
+//println(col);
 
 }
 
